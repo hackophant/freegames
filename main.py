@@ -73,12 +73,6 @@ def extract_game_listing(section_html: str) -> dict:
     # release date
     release_tag = a.find("div", class_="search_released")
     release_date = release_tag.text.strip() if release_tag else None
-    # price
-    price_block = a.find("div", class_="discount_final_price")
-    final_price = release_tag.text.strip() if release_tag else None
-    # original price
-    original_block = a.find("div", class_="discount_original_price")
-    original_price = original_block.text.strip() if original_block else None
 
     return {
         "appid": appid,
@@ -86,12 +80,12 @@ def extract_game_listing(section_html: str) -> dict:
         "link": link,
         "platforms": platforms,
         "release_date": release_date,
-        "final_price": final_price,
-        "original_price": original_price,
     }
 
 
 def main():
+    i_on = "\x1b[3m"
+    i_off = "\x1b[0m"
     url = STEAM_PROD_URL
     markup = fetch_html(url)
     try:
@@ -103,9 +97,10 @@ def main():
     listings = soup.find_all("a", class_="search_result_row")
     games = [extract_game_listing(str(listing)) for listing in listings]
 
+    print("\nCurrent 100% discount games on Steam:\n")
     for g in games:
-        print(g["title"])
-
+        print(f'\t {g["title"]} {i_on}({", ".join(g["platforms"]).title()}){i_off}')
+        print("\t\t", g["link"].split("?", 1)[0], "\n") # clean up the link-url by removing the question mark and everything after it
 
 if __name__ == "__main__":
     main()
